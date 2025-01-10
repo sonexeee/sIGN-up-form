@@ -98,6 +98,58 @@
             width: 80%;
             display: inline-block;
         }
+        .success-animation {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .success-animation svg {
+            width: 100px;
+            height: 100px;
+        }
+        .success-animation .circle {
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            stroke: #4caf50;
+            stroke-width: 5;
+            fill: none;
+            animation: circle-animation 1s ease-out forwards;
+        }
+        .success-animation .check {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            stroke: #4caf50;
+            stroke-width: 5;
+            fill: none;
+            animation: check-animation 0.5s 1s ease-out forwards;
+        }
+
+        @keyframes circle-animation {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes check-animation {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .success-message {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4caf50;
+            margin-top: 10px;
+            animation: fade-in 1.5s ease-in-out forwards;
+        }
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -125,6 +177,13 @@
             <div class="h-captcha" data-sitekey="b51854f6-6e48-4e80-83fc-a372a4be47ae"></div>
             <button class="captcha-button" onclick="verifyCaptcha()">Verify and Submit</button>
         </div>
+        <div class="success-animation" id="successAnimation">
+            <svg viewBox="0 0 100 100">
+                <circle class="circle" cx="50" cy="50" r="45"></circle>
+                <polyline class="check" points="30,50 45,65 70,35"></polyline>
+            </svg>
+            <div class="success-message">Success! Account Created</div>
+        </div>
     </div>
 
     <script>
@@ -132,6 +191,7 @@
         const strengthMeter = document.getElementById('strengthMeter').firstElementChild;
         const signUpForm = document.getElementById('signUpForm');
         const captchaContainer = document.getElementById('captcha-container');
+        const successAnimation = document.getElementById('successAnimation');
 
         const validatePassword = () => {
             const password = passwordInput.value;
@@ -169,7 +229,11 @@
         };
 
         const verifyCaptcha = () => {
-            alert("Captcha Verified! Form Submitted.");
+            // Simulate hCaptcha verification
+            setTimeout(() => {
+                captchaContainer.style.display = 'none';
+                successAnimation.style.display = 'block';
+            }, 1000); // Simulate delay for hCaptcha verification
         };
 
         // Event Listeners

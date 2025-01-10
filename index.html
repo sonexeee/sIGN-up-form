@@ -1,12 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up with hCaptcha</title>
+    <script src="https://hcaptcha.com/1/api.js" async defer></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+        .form-container h2 {
+            color: #333;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-container input:focus {
+            border-color: #6c5ce7;
+            outline: none;
+        }
+
+        /* hCaptcha container with smooth zoom-in effect */
+        .h-captcha-container {
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: zoomIn 1s ease-out forwards;
+        }
+
+        .h-captcha {
+            border-radius: 12px;
+            background-color: rgba(108, 92, 231, 0.1);
+            padding: 20px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .h-captcha:hover {
+            background-color: rgba(108, 92, 231, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Button with subtle hover effect */
+        .form-container button {
+            background: #6c5ce7;
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+            width: 100%;
+        }
+
+        .form-container button:hover {
+            background-color: #5a4ae3;
+            transform: translateY(-2px);
+        }
+
+        /* Password Strength Meter */
+        .strength-meter {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .strength-weak {
+            background-color: #ff4d4d;
+        }
+
+        .strength-medium {
+            background-color: #ffcc00;
+        }
+
+        .strength-strong {
+            background-color: #4caf50;
+        }
+
+        /* Text feedback for password strength */
+        .strength-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .strength-weak-text {
+            color: #ff4d4d;
+        }
+
+        .strength-medium-text {
+            color: #ffcc00;
+        }
+
+        .strength-strong-text {
+            color: #4caf50;
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes zoomIn {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.8);
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+        }
+
+        @keyframes checkmarkAnimation {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                color: green;
+            }
+        }
+
+        /* Success Animation for the completion of the captcha */
+        #success-message {
+            display: none;
+            font-size: 24px;
+            color: green;
+            margin-top: 20px;
+            font-weight: bold;
+            animation: checkmarkAnimation 1s ease-out forwards;
+        }
+
+        /* Button hover effect */
+        button:active {
+            transform: translateY(2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Sign Up</h2>
+        <form id="signUpForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password" oninput="checkPasswordStrength()">
+                <!-- Password Strength Meter -->
+                <div class="strength-meter">
+                    <div id="strength-bar" class="strength-bar"></div>
+                </div>
+                <div id="strength-text" class="strength-text">Password strength: </div>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+
+        <!-- The hCaptcha will be dynamically added after the form is submitted -->
+        <div id="captcha-container" class="h-captcha-container" style="display: none;">
+            <div class="h-captcha" data-sitekey="b51854f6-6e48-4e80-83fc-a372a4be47ae"></div>
+            <button onclick="verifyCaptcha()">Verify and Submit</button>
+        </div>
+
+        <!-- Success message displayed after captcha completion -->
+        <div id="success-message">
+            ✔️ Captcha Verified Successfully!
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signUpForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Hide the initial form and show the captcha with animation
+            document.getElementById('signUpForm').style.display = 'none';
+            document.getElementById('captcha-container').style.display = 'block';
+        });
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthText = document.getElementById('strength-text');
             let strength = 0;
-​
+
             // Check password strength
             if (password.length >= 8) strength += 1;
             if (/[A-Z]/.test(password)) strength += 1;
             if (/[a-z]/.test(password)) strength += 1;
             if (/[0-9]/.test(password)) strength += 1;
             if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-​
+
             // Update strength meter
             if (strength < 2) {
                 strengthBar.style.width = '30%';
@@ -25,18 +261,18 @@
                 strengthText.className = 'strength-text strength-strong-text';
             }
         }
-​
+
         function verifyCaptcha() {
             const captchaResponse = grecaptcha.getResponse();
             if (!captchaResponse) {
                 alert("Please complete the hCaptcha.");
                 return;
             }
-​
+
             // Display the success message after captcha completion with animation
             document.getElementById('captcha-container').style.display = 'none';
             document.getElementById('success-message').style.display = 'block';
-​
+
             // After a short delay, simulate form submission
             setTimeout(function() {
                 alert("Form submitted successfully!");
@@ -44,6 +280,6 @@
             }, 1500); // 1.5 second delay for effect
         }
     </script>
-​
+
 </body>
 </html>

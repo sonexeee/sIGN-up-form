@@ -1,0 +1,49 @@
+            let strength = 0;
+​
+            // Check password strength
+            if (password.length >= 8) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[a-z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+​
+            // Update strength meter
+            if (strength < 2) {
+                strengthBar.style.width = '30%';
+                strengthBar.className = 'strength-bar strength-weak';
+                strengthText.innerHTML = "Password strength: Weak";
+                strengthText.className = 'strength-text strength-weak-text';
+            } else if (strength < 4) {
+                strengthBar.style.width = '60%';
+                strengthBar.className = 'strength-bar strength-medium';
+                strengthText.innerHTML = "Password strength: Medium";
+                strengthText.className = 'strength-text strength-medium-text';
+            } else {
+                strengthBar.style.width = '100%';
+                strengthBar.className = 'strength-bar strength-strong';
+                strengthText.innerHTML = "Password strength: Strong";
+                strengthText.className = 'strength-text strength-strong-text';
+            }
+        }
+​
+        function verifyCaptcha() {
+            const captchaResponse = grecaptcha.getResponse();
+            if (!captchaResponse) {
+                alert("Please complete the hCaptcha.");
+                return;
+            }
+​
+            // Display the success message after captcha completion with animation
+            document.getElementById('captcha-container').style.display = 'none';
+            document.getElementById('success-message').style.display = 'block';
+​
+            // After a short delay, simulate form submission
+            setTimeout(function() {
+                alert("Form submitted successfully!");
+                // Here you can send form data and captcha response to your server
+            }, 1500); // 1.5 second delay for effect
+        }
+    </script>
+​
+</body>
+</html>
